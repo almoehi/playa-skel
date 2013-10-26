@@ -5,9 +5,11 @@ This project sets up a play-2.2 application with play2-playa module.
 Playa is a custom and extended Play-2.2
 Playa provides additional features 
 Playa is indented to provide some basic infrastructure for Play! Framework to speed up project development. It uses some popular Play! modules and contains several custom extensions.
+As of today Playa is actively developed and used by myself to build projects.
 
 Playa! provides the following features:
 =======================================
+- play-2.2 support
 - Security as provided by deadbolt2 module
 - Authorization as provided by securesocial2 module
 - Reactive MongoDB driver as provided by reactivemongo
@@ -26,6 +28,28 @@ Additional components and extensions:
 - An async storage subsystem (based on gridFS) to remove the pain from handling and serving file uploads from multipart form requests
 - Seamless integration of security and storage subsystem allows securing of storage items with user roles
 - A simple pagination implementation to build views with paged data
+
+
+Setup
+============
+If you received a valid Playa license you get access to the private SBT repository with the required artifacst.
+Set up your `build.sbt` file like this:
+
+	resolvers ++= Seq(
+        "webjars" at "http://webjars.github.com/m2",
+        Resolver.url("play-plugin-releases", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/"))(Resolver.ivyStylePatterns),
+        Resolver.url("play-plugin-snapshots", new URL("http://repo.scala-sbt.org/scalasbt/sbt-plugin-snapshots/"))(Resolver.ivyStylePatterns),
+        Resolver.url("Sonatype Snapshots",url("http://oss.sonatype.org/content/repositories/snapshots/"))(Resolver.ivyStylePatterns),
+        Resolver.url("almoehi-releases", new URL("https://github.com/almoehi/releases/"))(Resolver.ivyStylePatterns)
+        //Resolver.file("Local Repository", file(sys.env.get("PLAY_HOME").map(_ + "/repository/local").getOrElse("")))(Resolver.ivyStylePatterns)
+	)
+
+	libraryDependencies ++= Seq(
+  	jdbc,
+  	anorm,
+  	cache,
+  	"org.almoehi" %% "play2-playa" % "1.0-SNAPSHOT"
+	)     
 
 
 SiteContext
