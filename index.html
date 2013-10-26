@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Playa-skel : project template to be used with play2-playa module" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Playa-skel</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/almoehi/playa-skel">View on GitHub</a>
+
+          <h1 id="project_title">Playa-skel</h1>
+          <h2 id="project_tagline">project template to be used with play2-playa module</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/almoehi/playa-skel/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/almoehi/playa-skel/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="play2-playa-project-template" class="anchor" href="#play2-playa-project-template"><span class="octicon octicon-link"></span></a>play2-playa project template</h1>
+
+<p>This project sets up a play-2.2 application with play2-playa module.</p>
+
+<p>Playa is a custom and extended Play-2.2
+Playa provides additional features 
+Playa is indented to provide some basic infrastructure for Play! Framework to speed up project development. It uses some popular Play! modules and contains several custom extensions.</p>
+
+<h1>
+<a name="playa-provides-the-following-features" class="anchor" href="#playa-provides-the-following-features"><span class="octicon octicon-link"></span></a>Playa! provides the following features:</h1>
+
+<ul>
+<li>Security as provided by deadbolt2 module</li>
+<li>Authorization as provided by securesocial2 module</li>
+<li>Reactive MongoDB driver as provided by reactivemongo</li>
+<li>A slick ready2use AdminUI-Theme based on Bootstrap3 as provided by Bootstrap-Admin-Template</li>
+<li>Custom storage subsystem to easily receive, store and serve files and file uploads</li>
+</ul><h2>
+<a name="additional-components-and-extensions" class="anchor" href="#additional-components-and-extensions"><span class="octicon octicon-link"></span></a>Additional components and extensions:</h2>
+
+<ul>
+<li>Navigation as provided by a custom NavigationManager plugin</li>
+<li>Support for Bootstrap3 forms</li>
+<li>custom form field helpers for file and image uploads (integrates perfect with storage subsystem)</li>
+<li>A bunch of custom form field helpers to support additional and extended form controlls (taglist, multiselect drop-down, date-picker, time-picker, color-picker, masked inputs, ...)</li>
+<li>Custom actions builders to easily access current user object and secure your actions based on user roles</li>
+<li>MongoDB based UserProvider to store user accounts and user roles</li>
+<li>An async storage subsystem (based on gridFS) to remove the pain from handling and serving file uploads from multipart form requests</li>
+<li>Seamless integration of security and storage subsystem allows securing of storage items with user roles</li>
+<li>A simple pagination implementation to build views with paged data</li>
+</ul><h1>
+<a name="sitecontext" class="anchor" href="#sitecontext"><span class="octicon octicon-link"></span></a>SiteContext</h1>
+
+<p>Playa uses a concept called <em>SiteContext</em> to provide features like navigation and access of current user within templates. Therefore, an <code>implicit ctx:SiteContext</code> implicit needs to be present in any Admin-UI template. You can simply provide it from inside your controllers like this:</p>
+
+<pre><code>implicit def ctx(implicit request:RequestHeader) = DefaultSiteContext(Some(siteNav), Some(contextNav))
+</code></pre>
+
+<p>Where <code>siteNav</code> and <code>contextNav</code> are instances of <code>Navigation</code> to provide a (custom) navigation tree. To simplify this task the <code>NavigationProvider</code> trait provides a <code>defaultSiteContext</code> which you can use like this:</p>
+
+<pre><code>implicit def ctx(implicit request:RequestHeader) = navigationProvider.defaultSiteContext
+</code></pre>
+
+<p>If you don't need the navigation plugin and are not using the provided Admin-UI template(s) you can ommit this implicit.</p>
+
+<h1>
+<a name="controller-traits" class="anchor" href="#controller-traits"><span class="octicon octicon-link"></span></a>Controller Traits</h1>
+
+<p>Each module can be used by simply extending your controller with the provided traits.</p>
+
+<pre><code>object PlayaWelcome extends Controller with MongoController with SecurityActionBuilders with StorageProvider with NavigationProvider {
+
+}
+</code></pre>
+
+<ul>
+<li>  <strong>MongoController:</strong> grants access to mongodb (see <a href="https://github.com/ReactiveMongo/Play-ReactiveMongo">Play-ReactiveMongo</a>)</li>
+<li>  <strong>SecurityActionBuilder:</strong> provides UserWithRoles, UserAwareAction, UserAction action builders</li>
+<li>  <strong>StorageProvider:</strong> provides a simple to use storage subsystem based on gridFS. Receive, store and serve data or file-uploads</li>
+<li>  <strong>NavigationProvider:</strong> provides access to <code>navigationProvider</code> property and the <code>defaultSiteContext</code>
+</li>
+</ul><h1>
+<a name="mongodb" class="anchor" href="#mongodb"><span class="octicon octicon-link"></span></a>MongoDB</h1>
+
+<p>Access to MongoDB and GridFS is powered by the async <a href="http://reactivemongo.org/">ReactiveMongo</a> driver.</p>
+
+<h1>
+<a name="security" class="anchor" href="#security"><span class="octicon octicon-link"></span></a>Security</h1>
+
+<p>Security subsystem is powered by the <a href="https://github.com/schaloner/deadbolt-2-guide">Deadbolt2</a> module. However, Playa comes with it's own custom ActionBuilders and template helpers. Your controller needs to extend from the <code>SecurityActionBuilders</code> trait.</p>
+
+<p>Secure an action - user requires at least one of given roles</p>
+
+<pre><code>def acl = UserWithRolesAction("registered").async { implicit request =&gt; 
+  Future {
+    Ok(play.ui.backend.views.html.submodule("Submodule with REGISTERED ACL for user: " + request.user.getIdentifier))
+  }
+}
+</code></pre>
+
+<p>Secure with role groups - user requires at least one role of each given role group</p>
+
+<pre><code>def acl = UserWithRolesAction(List(Seq("registered"))).async { implicit request =&gt; 
+  Future {
+    Ok(play.ui.backend.views.html.submodule("Submodule with REGISTERED ACL for user: " + request.user.getIdentifier))
+  }
+}
+</code></pre>
+
+<h1>
+<a name="authorization-w-oauth-support" class="anchor" href="#authorization-w-oauth-support"><span class="octicon octicon-link"></span></a>Authorization /w OAuth Support</h1>
+
+<p>Authorization is provided by the <a href="http://securesocial.ws">securesocial2</a> module. Guides and docs on how to use it are available on the <a href="http://securesocial.ws">securesocial</a> website.</p>
+
+<p>Playa comes with a UserProvider implementation which stores all users and user roles in MongoDB. Playa supports implicit type conversions between securesocial2 Identity and the Playa user model by importing:</p>
+
+<pre><code>import play.modules.playa.Implicits._
+</code></pre>
+
+<p>secure action with (logged in) user</p>
+
+<pre><code>def acl = UserAction.async { implicit request =&gt; 
+  Future {
+    Ok(play.ui.backend.views.html.submodule("Submodule with logged-in user: " + request.user.getIdentifier))
+  }
+}
+</code></pre>
+
+<p>action with an optional user</p>
+
+<pre><code>def acl = UserAwareAction.async { implicit request =&gt; 
+  val userName = request.user match {
+        case Some(user) =&gt; user.fullName
+        case _ =&gt; "guest"
+    }
+
+  Future {
+    Ok(play.ui.backend.views.html.submodule("Submodule with logged-in user: " + userName))
+  }
+}
+</code></pre>
+
+<h1>
+<a name="bootstrap3-forms-" class="anchor" href="#bootstrap3-forms-"><span class="octicon octicon-link"></span></a>Bootstrap3 forms </h1>
+
+<p>Playa provides a default form field constructor to create forms using the Bootstrap3 markup rules.</p>
+
+<h1>
+<a name="custom-form-field-helpers" class="anchor" href="#custom-form-field-helpers"><span class="octicon octicon-link"></span></a>Custom form field helpers</h1>
+
+<p>Playa provides the following custom form field helpers. These helpers support the following default field options as the original Play! field helpers:</p>
+
+<ul>
+<li>
+<strong>_label</strong>: label text or omit for no label</li>
+<li>
+<strong>class</strong>: add custom CSS classes to input tag <code>class=""</code> property</li>
+<li>
+<strong>placeholder</strong>: placeholder value e.g. for text inputs or an image URL for image fields</li>
+<li>
+<strong>tooltip</strong>: tooltp text</li>
+<li>
+<strong>_offset</strong>: apply a bootstrap column offset - this adds a bootstrap CSS class like  <code>col-lg-offset-X</code> - useful to align form fields. When mixing forms with labels and no labels use <code>_offset -&gt; 2</code> on fields without labels</li>
+</ul><p>List of supported form field helpers:</p>
+
+<ul>
+<li><code>@fieldCheckbox(field = myForm("fieldName"))</code></li>
+<li><code>@fieldCurrency(field = myForm("fieldName"), 'mask -&gt; "999.999,99", 'currency -&gt; "EUR")</code></li>
+<li><code>@fieldDatepicker(field = myForm("fieldName"))</code></li>
+<li><code>@fieldEmail(field = myForm("fieldName"), 'tooltip -&gt; "Give your email", 'placeholder -&gt; "Your Email")</code></li>
+<li><code>@fieldFile(field = myForm("userFile"), 'selectButton -&gt; "select file", 'removeButton -&gt; "reset", 'deleteText -&gt; "delete current file")</code></li>
+<li><code>@fieldHexColor(field = myForm("fieldName"))</code></li>
+<li><code>@fieldRgbColor(field = myForm("fieldName"))</code></li>
+<li><code>@inputHidden(field = myForm("fieldName"))</code></li>
+<li><code>@fieldImage(field = myForm("imageFile"), 'placeholder -&gt; "some/empty/url", 'selectButton -&gt; "select image", 'removeButton -&gt; "reset", 'deleteText -&gt; "remove current image")</code></li>
+<li><code>@fieldLimitedTextarea(field = myForm("fieldName"), 'limit -&gt; 140, 'remainingText -&gt; "%n remaining", 'limitText -&gt; "max %n chars")</code></li>
+<li><code>@fieldMultiSelect(field = myForm("fieldName"), options = List(("de", "Germany"), ("ca", "Canada")))</code></li>
+<li><code>@fieldPassword(field = myForm("fieldName"), 'size -&gt; 10, 'tooltip = "some tooltip")</code></li>
+<li><code>@fieldRadio(field = myForm("fieldName"), 'tooltip -&gt; "radio button text")</code></li>
+<li><code>@fieldSelect(field = myForm("fieldName"), options = options(List("Yes","No")), args = 'placeholder -&gt; "choose value")</code></li>
+<li><code>@fieldSpinner(field = myForm("fieldName"), 'step -&gt; 1, 'numberFormat -&gt; "n", 'min -&gt; 0, 'max -&gt; 100)</code></li>
+<li><code>@fieldTags(field = myForm("mytags"), 'placeholder -&gt; "Type hashtags")</code></li>
+<li><code>@fieldText(field = myForm("fieldName"), 'size -&gt; 10, 'placeholder -&gt; "Your name", 'mask -&gt; "9999-99-99", 'tooltip -&gt; "date input mask")</code></li>
+<li><code>@fieldTextarea(field = myForm("fieldName"), 'placeholder -&gt; "type your story")</code></li>
+<li><code>@fieldDatepicker(field = myForm("fieldName"))</code></li>
+<li><code>@helper.formButtons("submit", "cancel")</code></li>
+</ul><h1>
+<a name="additional-template-helpers" class="anchor" href="#additional-template-helpers"><span class="octicon octicon-link"></span></a>Additional template helpers</h1>
+
+<p>Helpers to perform role-based security checks of current user within a template:</p>
+
+<pre><code>@helper.security.restrict(List("registered")) {
+      &lt;p&gt;This content should be visible to registered users only&lt;/p&lt;
+}
+</code></pre>
+
+<p>and using role groups:</p>
+
+<pre><code>@helper.security.restrictAll(List(List("registered"))) {
+      &lt;p&gt;This content should be visible to registered users only&lt;/p&lt;
+}
+</code></pre>
+
+<p>The <code>paginator</code> helper provides rendering of pagination. The current page is appended as a query string parameter <code>?page=X</code>:</p>
+
+<pre><code>@paginator(myPager, controllers.Application.myPagedAction)
+</code></pre>
+
+<p>Where <code>myPager</code> needs to be an <code>play.modules.playa.service.Pagination.Paginator</code> implementation.</p>
+
+<h1>
+<a name="storage-subsystem" class="anchor" href="#storage-subsystem"><span class="octicon octicon-link"></span></a>Storage subsystem</h1>
+
+<p>Playa provides an easy and straight forward way to store, retrive and serve files from GridFS. It also removes the pain from handling file uploads quite a bit !</p>
+
+<h2>
+<a name="file-uploads" class="anchor" href="#file-uploads"><span class="octicon octicon-link"></span></a>File Uploads</h2>
+
+<p>Playa provides an extension to Play! forms to remove the pain from receiving uploaded files.</p>
+
+<p>You need to:</p>
+
+<ul>
+<li>extend your controller from <code>StorageProvider</code> trait to get access to the implicit <code>gfs</code> property</li>
+<li>define file field as (regular) text field in your form</li>
+<li>use the <code>gridFSBodyParser(gfs)</code> body parser in your form submission action</li>
+<li>use the <code>form.bindFromMultipartRequest()</code> to validate and bind form data</li>
+</ul><p>Let's see an example where we define a form with a text field and two file fields. The <code>userfile1</code> for an avatar image which can only be accessed by registered users and <code>userfile2</code> for another public accessable file.</p>
+
+<pre><code>def upload = UserAwareAction { implicit request =&gt;
+    val form = Form(
+            tuple(
+                    "name" -&gt; text,
+                    "userfile1" -&gt; text,
+                    "userfile2" -&gt; optional(text)
+            )
+    )
+    Ok(play.ui.backend.views.html.upload("Storage Test", form))
+}
+
+
+def handleUpload = UserAwareAction.async(gridFSBodyParser(gfs)) { implicit request =&gt;
+        val form = Form(
+                tuple(
+                        "name" -&gt; text,
+                        "userfile1" -&gt; text,
+                        "userfile2" -&gt; optional(text)
+                )
+        )
+
+        form.bindFromMultipartRequest(BSONDocument("userfile1" -&gt; BSONDocument("requiredRoles" -&gt; BSONArray("registered")))).map{_.fold(
+                formWithErrors =&gt; Ok(play.ui.backend.views.html.upload("Upload Test", formWithErrors)),
+                value =&gt; {
+                  request.user match {
+                    case Some(u) =&gt; 
+                      play.modules.playa.service.UserProvider.update(u.copy(avatarUrl = Some(controllers.routes.StorageController.imageItem(value._2).url)))
+                    case _ =&gt; None
+                  }
+                  Redirect(routes.PlayaWelcome.upload)                  }
+        )}
+}
+</code></pre>
+
+<p>In your template you could use Playa's custom form field helpers:</p>
+
+<pre><code>@helper.form(action = routes.PlayaWelcome.handleUpload, 'class -&gt; "form-horizontal", 'enctype -&gt; "multipart/form-data") {
+        @helper.fieldText(form("name"), '_label -&gt; "Your name", 'placeholder -&gt; "Give some name", 'tooltip -&gt; "Name of uploaded file")
+        @helper.fieldImage(form("userfile1"), '_label -&gt; "avatar")
+        @helper.fieldImage(form("userfile2"), '_label -&gt; "2nd image")
+        @helper.formButtons()
+}
+</code></pre>
+
+<p>The form is simply defnied as a tuple of Strings which will contain the storageId (GridFS <code>_id</code>) of the uploaded and stored files. The form submission handling is straight forward like you do with every Play! forms. The only difference is the call to <code>bindFromMultipartRequest</code> method provided by the Playa form extension and the custom <code>gridFSBodyParser</code></p>
+
+<p>You can optionally assign roles to storage items which are required (and checked!) when accessing the storage item from the built-in <code>StorageController</code>. Or, yo can just use <code>bindFromMultipartRequest()</code> for public accessable items without assigning any roles.</p>
+
+<p>Note: the sample uses <code>UserAwareAction</code> ActionBuilder but you can use the form extensions with with any other Play! action.</p>
+
+<h2>
+<a name="serving-storage-items-with-routerhelper-urls" class="anchor" href="#serving-storage-items-with-routerhelper-urls"><span class="octicon octicon-link"></span></a>Serving storage items with RouterHelper URLs</h2>
+
+<p>Playa comes with a <code>StorageController</code> implementation to easily serve your stored files / uploads and a RouteHelper to build URLs in your templates by just using the storageId:</p>
+
+<p>to serve an image item:</p>
+
+<pre><code>@play.modules.playa.RouteHelper.imageItem(storageId)
+</code></pre>
+
+<p>to serve an arbitrary storage item:</p>
+
+<pre><code>@play.modules.playa.RouteHelper.storageItem(storageId)
+</code></pre>
+
+<p>to serve the file with CONTENT_DISPOSITION inline:</p>
+
+<pre><code>@play.modules.playa.RouteHelper.storageItem(storageId)?inline=true
+</code></pre>
+
+<p>You can change the route pattern in your <code>routes.conf</code></p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Playa-skel maintained by <a href="https://github.com/almoehi">almoehi</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
