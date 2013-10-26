@@ -28,7 +28,7 @@ POST /authenticate/:provider 		securesocial.controllers.ProviderController.authe
 GET /not-authorized 				securesocial.controllers.ProviderController.notAuthorized
 
 
-# Global Framework routes
+# Playa storage subsystem routes
 GET     /storage/file-:id                           play.modules.playa.controllers.StorageController.storageItem(id)
 GET     /storage/image-:id                          play.modules.playa.controllers.StorageController.imageItem(id)
 GET 	/storage-denied 							play.modules.playa.controllers.StorageController.denied
