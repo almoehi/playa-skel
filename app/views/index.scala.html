@@ -1,7 +1,7 @@
-@(message: String)
+@(message: String)(implicit request:RequestHeader, ctx: SiteContext)
 
-@main("Welcome to Play") {
-
-    @play20.welcome(message)
-
+@play.ui.backend.views.html.layouts.page() {
+	@play.ui.backend.views.html.layouts.tags.pageBox(message) {
+		@message
+	}
 }

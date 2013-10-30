@@ -3,7 +3,7 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.PlayaWelcome.index
+GET     /                           controllers.Application.index
 
 # Login page
 GET /login 		securesocial.controllers.LoginPage.login
